@@ -28,11 +28,10 @@ func main() {
 
 	fmt.Println("Connection to server was successful.")
 
-	_, q, err := pubsub.DeclareAndBind(connection, routing.ExchangePerilTopic, routing.GameLogSlug, routing.GameLogSlug+".*", pubsub.SimpleQueueDurable)
+	err = pubsub.SubscribeGob(connection, routing.ExchangePerilTopic, routing.GameLogSlug, routing.GameLogSlug+".*", pubsub.SimpleQueueDurable, handlerLogs())
 	if err != nil {
-		log.Fatalf("Error declaring and binding queue: %v", err)
+		log.Fatalf("Error consuming logs: %v", err)
 	}
-	fmt.Printf("Queue %v created\n", q.Name)
 
 	gamelogic.PrintServerHelp()
 Loop:
