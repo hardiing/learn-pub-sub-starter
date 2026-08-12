@@ -39,6 +39,7 @@ Loop:
 		input := gamelogic.GetInput()
 		if len(input) == 0 {
 			fmt.Println("Please enter a command")
+			continue
 		}
 		switch input[0] {
 		case "pause":

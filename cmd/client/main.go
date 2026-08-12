@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/bootdotdev/learn-pub-sub-starter/internal/gamelogic"
@@ -83,7 +84,25 @@ Loop:
 		case "help":
 			gamelogic.PrintClientHelp()
 		case "spam":
-			fmt.Println("Spamming not allowed yet!")
+			if len(input) != 2 {
+				fmt.Println("Please enter spam <number>")
+			}
+			num, err := strconv.Atoi(input[1])
+			if err != nil {
+				fmt.Println("Error converting str to int", err)
+			}
+			for i := 0; i < num; i++ {
+				maliciousMsg := gamelogic.GetMaliciousLog()
+				gl := routing.GameLog{
+					CurrentTime: time.Now(),
+					Message:     maliciousMsg,
+					Username:    clientName,
+				}
+				err = pubsub.PublishGob(newChannel, routing.ExchangePerilTopic, routing.GameLogSlug+"."+clientName, gl)
+				if err != nil {
+					fmt.Printf("Error publishing gob: %v", err)
+				}
+			}
 		case "quit":
 			gamelogic.PrintQuit()
 			break Loop
@@ -92,9 +111,6 @@ Loop:
 		}
 	}
 
-	//signalChan := make(chan os.Signal, 1)
-	//signal.Notify(signalChan, os.Interrupt)
-	//<-signalChan
 	fmt.Println("\nShutting down program.")
 }
 
